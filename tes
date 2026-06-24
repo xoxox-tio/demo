@@ -7930,7 +7930,7 @@ function Library:CreateWindow(WindowInfo)
             Container = TabContainer,
         }
 
-                function Tab:SetupKeySystem(Info)
+        function Tab:SetupKeySystem(Info)
             local Title = Info.Title or "Authentication"
             local SubText = Info.Description or "Please enter your access key to continue."
             local VerifyCallback = Info.Callback or function() end
@@ -7938,117 +7938,98 @@ function Library:CreateWindow(WindowInfo)
             
             local KeyCard = New("Frame", {
                 BackgroundColor3 = "BackgroundColor",
-                Size = UDim2.new(0, 360, 0, 0),
+                Size = UDim2.new(0, 320, 0, 0),
                 AutomaticSize = Enum.AutomaticSize.Y,
                 Parent = TabContainer,
             })
-            table.insert(Library.Corners, New("UICorner", { CornerRadius = UDim.new(0, WindowInfo.CornerRadius), Parent = KeyCard }))
+            table.insert(Library.Corners, New("UICorner", { CornerRadius = UDim.new(0, 12), Parent = KeyCard }))
             Library:AddOutline(KeyCard)
 
-                        New("UIPadding", {
+            New("UIPadding", {
                 PaddingBottom = UDim.new(0, 14), PaddingLeft = UDim.new(0, 14),
                 PaddingRight = UDim.new(0, 14), PaddingTop = UDim.new(0, 14),
                 Parent = KeyCard,
             })
             New("UIListLayout", { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder, Parent = KeyCard })
 
+            -- [HEADER]
             local HeaderFrame = New("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 24), LayoutOrder = 1, Parent = KeyCard })
             New("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, VerticalAlignment = Enum.VerticalAlignment.Center, Padding = UDim.new(0, 8), Parent = HeaderFrame })
             
             local HeaderIcon = Library:GetCustomIcon("lock") or KeyIcon
             New("ImageLabel", {
-                BackgroundTransparency = 1, Image = HeaderIcon.Url, ImageRectOffset = HeaderIcon.ImageRectOffset, ImageRectSize = HeaderIcon.ImageRectSize,
-                ImageColor3 = "AccentColor", Size = UDim2.fromOffset(20, 20), Parent = HeaderFrame,
+                BackgroundTransparency = 1, Image = HeaderIcon.Url, ImageRectOffset = HeaderIcon.ImageRectOffset, 
+                ImageRectSize = HeaderIcon.ImageRectSize, ImageColor3 = "AccentColor", Size = UDim2.fromOffset(20, 20), Parent = HeaderFrame,
             })
-            New("TextLabel", { BackgroundTransparency = 1, Size = UDim2.new(1, -28, 1, 0), Text = Title, TextSize = 18, TextXAlignment = Enum.TextXAlignment.Left, Parent = HeaderFrame })
+            New("TextLabel", { BackgroundTransparency = 1, Size = UDim2.new(1, -28, 1, 0), Text = Title, TextSize = 16, TextXAlignment = Enum.TextXAlignment.Left, Parent = HeaderFrame })
 
             local DescLabel = New("TextLabel", {
-                BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 16),
-                Text = SubText, TextSize = 14, TextTransparency = 0.4,
-                TextXAlignment = Enum.TextXAlignment.Left, LayoutOrder = 2, Parent = KeyCard,
+                BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 14), Text = SubText, TextSize = 13, 
+                TextTransparency = 0.4, TextXAlignment = Enum.TextXAlignment.Left, LayoutOrder = 2, Parent = KeyCard,
             })
 
-            local InputHolder = New("Frame", { BackgroundColor3 = "MainColor", Size = UDim2.new(1, 0, 0, 36), LayoutOrder = 3, Parent = KeyCard })
-            table.insert(Library.Corners, New("UICorner", { CornerRadius = UDim.new(0, Library.CornerRadius / 2), Parent = InputHolder }))
+            local InputHolder = New("Frame", { BackgroundColor3 = "MainColor", Size = UDim2.new(1, 0, 0, 34), LayoutOrder = 3, Parent = KeyCard })
+            table.insert(Library.Corners, New("UICorner", { CornerRadius = UDim.new(0, 8), Parent = InputHolder }))
             New("UIStroke", { Color = "OutlineColor", Parent = InputHolder })
             
-            local InputIcon = Library:GetCustomIcon("key") or KeyIcon
-            New("ImageLabel", {
-                BackgroundTransparency = 1, AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.new(0, 10, 0.5, 0),
-                Size = UDim2.fromOffset(16, 16), Image = InputIcon.Url, ImageColor3 = "FontColor", ImageTransparency = 0.5,
-                ImageRectOffset = InputIcon.ImageRectOffset, ImageRectSize = InputIcon.ImageRectSize, Parent = InputHolder,
-            })
-
             local KeyInput = New("TextBox", {
-                BackgroundTransparency = 1, Position = UDim2.new(0, 34, 0, 0), Size = UDim2.new(1, -44, 1, 0),
-                PlaceholderText = "Enter your key here...", Text = "", TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left,
+                BackgroundTransparency = 1, Position = UDim2.new(0, 12, 0, 0), Size = UDim2.new(1, -24, 1, 0),
+                PlaceholderText = "Enter your key here...", Text = "", TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left,
                 ClearTextOnFocus = false, Parent = InputHolder,
             })
 
-            local ActionRow = New("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 34), LayoutOrder = 4, Parent = KeyCard })
+            local ActionRow = New("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 30), LayoutOrder = 4, Parent = KeyCard })
             
-            if GetKeyCallback then
-                local GetBtn = New("TextButton", {
-                    BackgroundColor3 = "MainColor", Size = UDim2.new(0.5, -4, 1, 0), Position = UDim2.new(0, 0, 0, 0),
-                    Text = "Get Key", TextSize = 14, AutoButtonColor = false, Parent = ActionRow,
+            local function AddPremiumButton(Text, Parent, Color, IsPrimary, Callback)
+                local Btn = New("TextButton", {
+                    BackgroundColor3 = Color, Size = Parent.Size, Text = Text, TextSize = 13, 
+                    AutoButtonColor = false, Parent = Parent,
                 })
-                table.insert(Library.Corners, New("UICorner", { CornerRadius = UDim.new(0, Library.CornerRadius / 2), Parent = GetBtn }))
-                New("UIStroke", { Color = "OutlineColor", Parent = GetBtn })
-
-                GetBtn.MouseEnter:Connect(function() TweenService:Create(GetBtn, Library.TweenInfo, {BackgroundColor3 = Library:GetBetterColor(Library.Scheme.MainColor, 10)}):Play() end)
-                GetBtn.MouseLeave:Connect(function() TweenService:Create(GetBtn, Library.TweenInfo, {BackgroundColor3 = Library.Scheme.MainColor}):Play() end)
-                GetBtn.MouseButton1Click:Connect(function() Library:SafeCallback(GetKeyCallback) end)
+                table.insert(Library.Corners, New("UICorner", { CornerRadius = UDim.new(0, 8), Parent = Btn }))
+                
+                local Gradient = New("UIGradient", { Rotation = 90, Color = ColorSequence.new({
+                    ColorSequenceKeypoint.new(0, Color), ColorSequenceKeypoint.new(1, Library:GetDarkerColor(Color))
+                }), Parent = Btn })
+                
+                Btn.MouseEnter:Connect(function() TweenService:Create(Gradient, Library.TweenInfo, {Rotation = 270}):Play() end)
+                Btn.MouseLeave:Connect(function() TweenService:Create(Gradient, Library.TweenInfo, {Rotation = 90}):Play() end)
+                Btn.MouseButton1Click:Connect(Callback)
+                return Btn
             end
 
-            local VerifyBtn = New("TextButton", {
-                BackgroundColor3 = "AccentColor", Size = UDim2.new(GetKeyCallback and 0.5 or 1, GetKeyCallback and -4 or 0, 1, 0),
-                Position = UDim2.new(GetKeyCallback and 0.5 or 0, GetKeyCallback and 4 or 0, 0, 0),
-                Text = "Verify Key", TextColor3 = Color3.fromRGB(255,255,255), TextSize = 14, AutoButtonColor = false, Parent = ActionRow,
+            if GetKeyCallback then
+                local GBtnFrame = New("Frame", { BackgroundTransparency = 1, Size = UDim2.new(0.5, -4, 1, 0), Parent = ActionRow })
+                AddPremiumButton("Get Key", GBtnFrame, Library.Scheme.MainColor, false, GetKeyCallback)
+            end
+
+            local VBtnFrame = New("Frame", { 
+                BackgroundTransparency = 1, Size = UDim2.new(GetKeyCallback and 0.5 or 1, GetKeyCallback and -4 or 0, 1, 0), 
+                Position = UDim2.new(GetKeyCallback and 0.5 or 0, GetKeyCallback and 4 or 0, 0, 0), Parent = ActionRow 
             })
-            table.insert(Library.Corners, New("UICorner", { CornerRadius = UDim.new(0, Library.CornerRadius / 2), Parent = VerifyBtn }))
-            
-            VerifyBtn.MouseEnter:Connect(function() TweenService:Create(VerifyBtn, Library.TweenInfo, {BackgroundColor3 = Library:GetBetterColor(Library.Scheme.AccentColor, 15)}):Play() end)
-            VerifyBtn.MouseLeave:Connect(function() TweenService:Create(VerifyBtn, Library.TweenInfo, {BackgroundColor3 = Library.Scheme.AccentColor}):Play() end)
-            
-            VerifyBtn.MouseButton1Click:Connect(function()
-                local text = KeyInput.Text
-                if text == "" then
-                    KeyInput.PlaceholderText = "Key cannot be empty!"
-                    TweenService:Create(InputHolder, Library.TweenInfo, {BackgroundColor3 = Color3.fromRGB(100, 30, 30)}):Play()
-                    task.delay(1, function() TweenService:Create(InputHolder, Library.TweenInfo, {BackgroundColor3 = Library.Scheme.MainColor}):Play() KeyInput.PlaceholderText = "Enter your key here..." end)
-                    return
-                end
-                Library:SafeCallback(VerifyCallback, text, DescLabel)
+            AddPremiumButton("Verify Key", VBtnFrame, Library.Scheme.AccentColor, true, function()
+                if KeyInput.Text == "" then return end
+                Library:SafeCallback(VerifyCallback, KeyInput.Text, DescLabel)
             end)
 
             if Info.HWIDReset and Info.HWIDReset.Enabled then
-                New("Frame", { BackgroundColor3 = "OutlineColor", BorderSizePixel = 0, Size = UDim2.new(1, 0, 0, 1), LayoutOrder = 5, Parent = KeyCard })
+                New("Frame", { BackgroundColor3 = "OutlineColor", Size = UDim2.new(1, 0, 0, 1), LayoutOrder = 5, Parent = KeyCard })
+                local HWIDHolder = New("Frame", { BackgroundColor3 = "MainColor", Size = UDim2.new(1, 0, 0, 34), LayoutOrder = 6, Parent = KeyCard })
+                table.insert(Library.Corners, New("UICorner", { CornerRadius = UDim.new(0, 8), Parent = HWIDHolder }))
                 
-                local HWIDHolder = New("Frame", { BackgroundColor3 = "MainColor", Size = UDim2.new(1, 0, 0, 36), LayoutOrder = 6, Parent = KeyCard })
-                table.insert(Library.Corners, New("UICorner", { CornerRadius = UDim.new(0, Library.CornerRadius / 2), Parent = HWIDHolder }))
-                New("UIStroke", { Color = "OutlineColor", Parent = HWIDHolder })
-
                 local HWIDInput = New("TextBox", {
                     BackgroundTransparency = 1, Position = UDim2.new(0, 12, 0, 0), Size = UDim2.new(1, -24, 1, 0),
-                    PlaceholderText = Info.HWIDReset.Placeholder or "Paste key for Reset HWID",
-                    Text = "", TextSize = 14, TextXAlignment = Enum.TextXAlignment.Left, ClearTextOnFocus = false, Parent = HWIDHolder,
+                    PlaceholderText = Info.HWIDReset.Placeholder or "Paste HWID Key...", Text = "", TextSize = 13, Parent = HWIDHolder,
                 })
-
-                local ResetBtn = New("TextButton", {
-                    BackgroundColor3 = "MainColor", Size = UDim2.new(1, 0, 0, 34),
-                    Text = Info.HWIDReset.ButtonText or "Reset HWID", TextColor3 = Library.Scheme.RedColor,
-                    TextSize = 14, AutoButtonColor = false, LayoutOrder = 7, Parent = KeyCard,
-                })
-                table.insert(Library.Corners, New("UICorner", { CornerRadius = UDim.new(0, Library.CornerRadius / 2), Parent = ResetBtn }))
-                New("UIStroke", { Color = "OutlineColor", Parent = ResetBtn })
-
-                ResetBtn.MouseEnter:Connect(function() TweenService:Create(ResetBtn, Library.TweenInfo, {BackgroundColor3 = Library:GetBetterColor(Library.Scheme.MainColor, 10)}):Play() end)
-                ResetBtn.MouseLeave:Connect(function() TweenService:Create(ResetBtn, Library.TweenInfo, {BackgroundColor3 = Library.Scheme.MainColor}):Play() end)
-                ResetBtn.MouseButton1Click:Connect(function() if Info.HWIDReset.Callback then Info.HWIDReset.Callback(HWIDInput.Text) end end)
+                
+                local RBtnFrame = New("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 30), LayoutOrder = 7, Parent = KeyCard })
+                AddPremiumButton(Info.HWIDReset.ButtonText or "Reset HWID", RBtnFrame, Library.Scheme.MainColor, false, function()
+                    if Info.HWIDReset.Callback then Info.HWIDReset.Callback(HWIDInput.Text) end
+                end)
             end
 
             return KeyInput
         end
+
 
         function Tab:RefreshSides() end
         function Tab:Resize() end
