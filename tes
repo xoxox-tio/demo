@@ -7931,8 +7931,6 @@ function Library:CreateWindow(WindowInfo)
         }
 
         function Tab:SetupKeySystem(Info)
-            local Title = Info.Title or "Authentication"
-            local SubText = Info.Description or "Please enter your access key to continue."
             local VerifyCallback = Info.Callback or function() end
             local GetKeyCallback = Info.GetKeyCallback
             
@@ -7942,87 +7940,72 @@ function Library:CreateWindow(WindowInfo)
                 AutomaticSize = Enum.AutomaticSize.Y,
                 Parent = TabContainer,
             })
-            table.insert(Library.Corners, New("UICorner", { CornerRadius = UDim.new(0, 12), Parent = KeyCard }))
+            table.insert(Library.Corners, New("UICorner", { CornerRadius = UDim.new(0, 8), Parent = KeyCard }))
             Library:AddOutline(KeyCard)
 
             New("UIPadding", {
-                PaddingBottom = UDim.new(0, 14), PaddingLeft = UDim.new(0, 14),
-                PaddingRight = UDim.new(0, 14), PaddingTop = UDim.new(0, 14),
+                PaddingBottom = UDim.new(0, 12), PaddingLeft = UDim.new(0, 12),
+                PaddingRight = UDim.new(0, 12), PaddingTop = UDim.new(0, 12),
                 Parent = KeyCard,
             })
             New("UIListLayout", { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder, Parent = KeyCard })
 
-            -- [HEADER]
             local HeaderFrame = New("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 24), LayoutOrder = 1, Parent = KeyCard })
-            New("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, VerticalAlignment = Enum.VerticalAlignment.Center, Padding = UDim.new(0, 8), Parent = HeaderFrame })
-            
             local HeaderIcon = Library:GetCustomIcon("lock") or KeyIcon
             New("ImageLabel", {
                 BackgroundTransparency = 1, Image = HeaderIcon.Url, ImageRectOffset = HeaderIcon.ImageRectOffset, 
                 ImageRectSize = HeaderIcon.ImageRectSize, ImageColor3 = "AccentColor", Size = UDim2.fromOffset(20, 20), Parent = HeaderFrame,
             })
-            New("TextLabel", { BackgroundTransparency = 1, Size = UDim2.new(1, -28, 1, 0), Text = Title, TextSize = 16, TextXAlignment = Enum.TextXAlignment.Left, Parent = HeaderFrame })
+            New("TextLabel", { 
+                BackgroundTransparency = 1, Position = UDim2.fromOffset(28, 0), Size = UDim2.new(1, -28, 1, 0), 
+                Text = Info.Title or "Authentication", TextSize = 16, TextXAlignment = Enum.TextXAlignment.Left, Parent = HeaderFrame 
+            })
 
             local DescLabel = New("TextLabel", {
-                BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 14), Text = SubText, TextSize = 13, 
+                BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 14), Text = Info.Description or "", TextSize = 13, 
                 TextTransparency = 0.4, TextXAlignment = Enum.TextXAlignment.Left, LayoutOrder = 2, Parent = KeyCard,
             })
 
-            local InputHolder = New("Frame", { BackgroundColor3 = "MainColor", Size = UDim2.new(1, 0, 0, 34), LayoutOrder = 3, Parent = KeyCard })
-            table.insert(Library.Corners, New("UICorner", { CornerRadius = UDim.new(0, 8), Parent = InputHolder }))
+            local InputHolder = New("Frame", { BackgroundColor3 = "MainColor", Size = UDim2.new(1, 0, 0, 32), LayoutOrder = 3, Parent = KeyCard })
+            table.insert(Library.Corners, New("UICorner", { CornerRadius = UDim.new(0, 6), Parent = InputHolder }))
             New("UIStroke", { Color = "OutlineColor", Parent = InputHolder })
             
             local KeyInput = New("TextBox", {
-                BackgroundTransparency = 1, Position = UDim2.new(0, 12, 0, 0), Size = UDim2.new(1, -24, 1, 0),
-                PlaceholderText = "Enter your key here...", Text = "", TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left,
+                BackgroundTransparency = 1, Position = UDim2.new(0, 10, 0, 0), Size = UDim2.new(1, -20, 1, 0),
+                PlaceholderText = "Enter key...", Text = "", TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left,
                 ClearTextOnFocus = false, Parent = InputHolder,
             })
 
-            local ActionRow = New("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 30), LayoutOrder = 4, Parent = KeyCard })
-            
-            local function AddPremiumButton(Text, Parent, Color, IsPrimary, Callback)
+            local function AddPremiumButton(Text, Color, Callback)
                 local Btn = New("TextButton", {
-                    BackgroundColor3 = Color, Size = Parent.Size, Text = Text, TextSize = 13, 
-                    AutoButtonColor = false, Parent = Parent,
+                    BackgroundColor3 = Color, Size = UDim2.new(1, 0, 0, 30), Text = Text, TextSize = 13, 
+                    AutoButtonColor = false, Parent = KeyCard,
                 })
-                table.insert(Library.Corners, New("UICorner", { CornerRadius = UDim.new(0, 8), Parent = Btn }))
+                table.insert(Library.Corners, New("UICorner", { CornerRadius = UDim.new(0, 6), Parent = Btn }))
                 
                 local Gradient = New("UIGradient", { Rotation = 90, Color = ColorSequence.new({
-                    ColorSequenceKeypoint.new(0, Color), ColorSequenceKeypoint.new(1, Library:GetDarkerColor(Color))
+                    ColorSequenceKeypoint.new(0, Color:Lerp(Color3.new(1,1,1), 0.15)), ColorSequenceKeypoint.new(1, Color)
                 }), Parent = Btn })
                 
                 Btn.MouseEnter:Connect(function() TweenService:Create(Gradient, Library.TweenInfo, {Rotation = 270}):Play() end)
                 Btn.MouseLeave:Connect(function() TweenService:Create(Gradient, Library.TweenInfo, {Rotation = 90}):Play() end)
                 Btn.MouseButton1Click:Connect(Callback)
-                return Btn
             end
 
-            if GetKeyCallback then
-                local GBtnFrame = New("Frame", { BackgroundTransparency = 1, Size = UDim2.new(0.5, -4, 1, 0), Parent = ActionRow })
-                AddPremiumButton("Get Key", GBtnFrame, Library.Scheme.MainColor, false, GetKeyCallback)
-            end
-
-            local VBtnFrame = New("Frame", { 
-                BackgroundTransparency = 1, Size = UDim2.new(GetKeyCallback and 0.5 or 1, GetKeyCallback and -4 or 0, 1, 0), 
-                Position = UDim2.new(GetKeyCallback and 0.5 or 0, GetKeyCallback and 4 or 0, 0, 0), Parent = ActionRow 
-            })
-            AddPremiumButton("Verify Key", VBtnFrame, Library.Scheme.AccentColor, true, function()
-                if KeyInput.Text == "" then return end
-                Library:SafeCallback(VerifyCallback, KeyInput.Text, DescLabel)
-            end)
+            if GetKeyCallback then AddPremiumButton("Get Key", Library.Scheme.MainColor, GetKeyCallback) end
+            AddPremiumButton("Verify Key", Library.Scheme.AccentColor, function() Library:SafeCallback(VerifyCallback, KeyInput.Text, DescLabel) end)
 
             if Info.HWIDReset and Info.HWIDReset.Enabled then
-                New("Frame", { BackgroundColor3 = "OutlineColor", Size = UDim2.new(1, 0, 0, 1), LayoutOrder = 5, Parent = KeyCard })
-                local HWIDHolder = New("Frame", { BackgroundColor3 = "MainColor", Size = UDim2.new(1, 0, 0, 34), LayoutOrder = 6, Parent = KeyCard })
-                table.insert(Library.Corners, New("UICorner", { CornerRadius = UDim.new(0, 8), Parent = HWIDHolder }))
+                New("Frame", { BackgroundColor3 = "OutlineColor", Size = UDim2.new(1, 0, 0, 1), LayoutOrder = 6, Parent = KeyCard })
+                local HWIDHolder = New("Frame", { BackgroundColor3 = "MainColor", Size = UDim2.new(1, 0, 0, 32), LayoutOrder = 7, Parent = KeyCard })
+                table.insert(Library.Corners, New("UICorner", { CornerRadius = UDim.new(0, 6), Parent = HWIDHolder }))
+                New("UIStroke", { Color = "OutlineColor", Parent = HWIDHolder })
                 
                 local HWIDInput = New("TextBox", {
-                    BackgroundTransparency = 1, Position = UDim2.new(0, 12, 0, 0), Size = UDim2.new(1, -24, 1, 0),
-                    PlaceholderText = Info.HWIDReset.Placeholder or "Paste HWID Key...", Text = "", TextSize = 13, Parent = HWIDHolder,
+                    BackgroundTransparency = 1, Position = UDim2.new(0, 10, 0, 0), Size = UDim2.new(1, -20, 1, 0),
+                    PlaceholderText = "Paste HWID Key...", Text = "", TextSize = 13, Parent = HWIDHolder,
                 })
-                
-                local RBtnFrame = New("Frame", { BackgroundTransparency = 1, Size = UDim2.new(1, 0, 0, 30), LayoutOrder = 7, Parent = KeyCard })
-                AddPremiumButton(Info.HWIDReset.ButtonText or "Reset HWID", RBtnFrame, Library.Scheme.MainColor, false, function()
+                AddPremiumButton(Info.HWIDReset.ButtonText or "Reset HWID", Library.Scheme.MainColor, function()
                     if Info.HWIDReset.Callback then Info.HWIDReset.Callback(HWIDInput.Text) end
                 end)
             end
