@@ -31,7 +31,6 @@ local function generateNonce()
     return str
 end
 
--- Function untuk dipanggil dari luar
 function PlatoAPI.GetLink(ServiceId)
     local response, err = safeRequest({
         Url = host .. "/public/start",
