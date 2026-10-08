@@ -1,6 +1,5 @@
 local CoreGui = game:GetService("CoreGui")
 
--- Hapus UI lama jika ada agar tidak menumpuk saat dieksekusi ulang
 if CoreGui:FindFirstChild("TargetUI") then 
     CoreGui.TargetUI:Destroy() 
 end
@@ -11,81 +10,88 @@ MobileTargetUI.Parent = CoreGui
 MobileTargetUI.IgnoreGuiInset = true
 MobileTargetUI.Enabled = false 
 
+-- Wadah Utama (Bubble/Pill)
 local TargetMainBox = Instance.new("Frame")
-TargetMainBox.Name = "TargetMainBox"
-TargetMainBox.Size = UDim2.new(0, 100, 0, 25)
+TargetMainBox.Name = "BubbleContainer"
+TargetMainBox.Size = UDim2.new(0, 210, 0, 42)
 TargetMainBox.Position = UDim2.new(0.5, 0, 0.8, 0)
 TargetMainBox.AnchorPoint = Vector2.new(0.5, 0.5)
-TargetMainBox.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-TargetMainBox.BackgroundTransparency = 0.2
+TargetMainBox.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+TargetMainBox.BackgroundTransparency = 0.4
+TargetMainBox.Active = true
 TargetMainBox.ZIndex = 100
 TargetMainBox.Parent = MobileTargetUI
 
-local TargetCorner = Instance.new("UICorner")
-TargetCorner.CornerRadius = UDim.new(0, 8)
-TargetCorner.Parent = TargetMainBox
+Instance.new("UICorner", TargetMainBox).CornerRadius = UDim.new(1, 0)
 
-local TargetUIStroke = Instance.new("UIStroke")
-TargetUIStroke.Color = Color3.fromRGB(255, 255, 255)
-TargetUIStroke.Transparency = 0.5
-TargetUIStroke.Thickness = 1
-TargetUIStroke.Parent = TargetMainBox
+local Stroke = Instance.new("UIStroke", TargetMainBox)
+Stroke.Color = Color3.fromRGB(255, 255, 255)
+Stroke.Transparency = 0.7
+Stroke.Thickness = 1.2
 
-local TargetText = Instance.new("TextLabel")
-TargetText.Size = UDim2.new(1, -40, 1, -15)
-TargetText.Position = UDim2.new(0, 10, 0, 5)
-TargetText.BackgroundTransparency = 1
-TargetText.Font = Enum.Font.GothamSemibold
-TargetText.TextSize = 12
-TargetText.TextColor3 = Color3.fromRGB(255, 255, 255)
-TargetText.Text = "Target: Killer"
-TargetText.TextXAlignment = Enum.TextXAlignment.Left
-TargetText.ZIndex = 101
-TargetText.Parent = TargetMainBox
-
-local NextButton = Instance.new("TextButton")
-NextButton.Size = UDim2.new(0, 20, 0, 20)
-NextButton.AnchorPoint = Vector2.new(0.5, 0.5)
-NextButton.Position = UDim2.new(0.85, 0, 0.5, 0)
-NextButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-NextButton.Text = ">"
-NextButton.Font = Enum.Font.GothamBold
-NextButton.TextSize = 16
-NextButton.TextColor3 = Color3.fromRGB(0, 255, 100)
-NextButton.ZIndex = 102
-NextButton.Parent = TargetMainBox
-
-local NextCorner = Instance.new("UICorner")
-NextCorner.CornerRadius = UDim.new(0, 6)
-NextCorner.Parent = NextButton
-
-local DragBarHitbox = Instance.new("Frame")
-DragBarHitbox.Size = UDim2.new(1, 0, 0, 15)
-DragBarHitbox.Position = UDim2.new(0, 0, 1, 5)
-DragBarHitbox.AnchorPoint = Vector2.new(0, 0.5)
-DragBarHitbox.BackgroundTransparency = 1
-DragBarHitbox.Active = true
-DragBarHitbox.ZIndex = 103
-DragBarHitbox.Parent = TargetMainBox
-
+-- Indikator Drag di bawah Bubble
 local DragBarVisual = Instance.new("Frame")
 DragBarVisual.Size = UDim2.new(0, 60, 0, 4)
-DragBarVisual.Position = UDim2.new(0.5, 0, 0.5, 0)
-DragBarVisual.AnchorPoint = Vector2.new(0.5, 0.5)
-DragBarVisual.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+DragBarVisual.Position = UDim2.new(0.5, 0, 1, 8)
+DragBarVisual.AnchorPoint = Vector2.new(0.5, 0)
+DragBarVisual.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+DragBarVisual.BackgroundTransparency = 0.3
 DragBarVisual.ZIndex = 104
-DragBarVisual.Parent = DragBarHitbox
+DragBarVisual.Parent = TargetMainBox
+Instance.new("UICorner", DragBarVisual).CornerRadius = UDim.new(1, 0)
 
-local DragBarCorner = Instance.new("UICorner")
-DragBarCorner.CornerRadius = UDim.new(1, 0)
-DragBarCorner.Parent = DragBarVisual
+-- Layout Tab
+local Layout = Instance.new("UIListLayout")
+Layout.FillDirection = Enum.FillDirection.Horizontal
+Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+Layout.VerticalAlignment = Enum.VerticalAlignment.Center
+Layout.Padding = UDim.new(0, 6)
+Layout.Parent = TargetMainBox
 
--- Logika Drag UI Target
+local Buttons = {}
+
+local function CreateTab(name, text, isActive)
+    local Btn = Instance.new("TextButton")
+    Btn.Name = name
+    Btn.Size = UDim2.new(0, 60, 0, 32)
+    Btn.BackgroundColor3 = Color3.fromRGB(245, 245, 245)
+    Btn.BackgroundTransparency = isActive and 0.1 or 1
+    Btn.Text = text
+    Btn.Font = Enum.Font.GothamBold
+    Btn.TextSize = 13
+    Btn.TextColor3 = isActive and Color3.fromRGB(255, 50, 50) or Color3.fromRGB(200, 200, 200)
+    Btn.ZIndex = 101
+    Btn.Parent = TargetMainBox
+
+    Instance.new("UICorner", Btn).CornerRadius = UDim.new(1, 0)
+    Buttons[name] = Btn
+    return Btn
+end
+
+-- Buat 3 Tombol
+local btnKiller = CreateTab("Killer", "Killer", true)
+local btnSurv = CreateTab("Survivor", "Surv", false)
+local btnSCP = CreateTab("SCP", "SCP", false)
+
+-- Fungsi Update Visual
+local function UpdateVisuals(activeName)
+    for name, btn in pairs(Buttons) do
+        if name == activeName then
+            btn.BackgroundTransparency = 0.1
+            btn.TextColor3 = Color3.fromRGB(255, 50, 50)
+        else
+            btn.BackgroundTransparency = 1
+            btn.TextColor3 = Color3.fromRGB(200, 200, 200)
+        end
+    end
+end
+
+-- Logika Dragging
 local UserInputService = game:GetService("UserInputService")
 local dragTargeting = false
 local dragStartTarget, startPosTarget
 
-DragBarHitbox.InputBegan:Connect(function(input)
+TargetMainBox.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
         dragTargeting = true
         dragStartTarget = input.Position
@@ -105,9 +111,8 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
 
--- Return tabel berisi referensi agar main script bisa mengatur event
 return {
     UI = MobileTargetUI,
-    TargetText = TargetText,
-    NextButton = NextButton
+    Buttons = Buttons,
+    UpdateVisuals = UpdateVisuals
 }
