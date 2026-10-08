@@ -8,7 +8,7 @@ local function getParent()
 end
 
 -- ==========================================
--- 1. TARGET MOBILE UI (STYLE BUBBLE)
+-- 1. TARGET MOBILE UI (STYLE BUBBLE RAMPING)
 -- ==========================================
 function UILib.CreateTargetUI()
     local parent = getParent()
@@ -30,11 +30,16 @@ function UILib.CreateTargetUI()
 
     local Container = Instance.new("Frame")
     Container.Size = UDim2.new(1, 0, 0, 32) 
-    Container.BackgroundColor3 = Color3.fromRGB(220, 220, 220)
-    Container.BackgroundTransparency = 0.5
+    Container.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+    Container.BackgroundTransparency = 0.4
     Container.Active = true 
     Container.Parent = MasterFrame
     Instance.new("UICorner", Container).CornerRadius = UDim.new(1, 0)
+
+    local Stroke = Instance.new("UIStroke", Container)
+    Stroke.Color = Color3.fromRGB(255, 255, 255)
+    Stroke.Transparency = 0.7
+    Stroke.Thickness = 1.2
 
     local DragHitbox = Instance.new("Frame")
     DragHitbox.Size = UDim2.new(1, 0, 0, 16)
@@ -49,7 +54,7 @@ function UILib.CreateTargetUI()
     DragBarVisual.Position = UDim2.new(0.5, 0, 0.5, 0) 
     DragBarVisual.AnchorPoint = Vector2.new(0.5, 0.5)
     DragBarVisual.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    DragBarVisual.BackgroundTransparency = 0.2
+    DragBarVisual.BackgroundTransparency = 0.3
     DragBarVisual.Parent = DragHitbox
     Instance.new("UICorner", DragBarVisual).CornerRadius = UDim.new(1, 0)
 
@@ -74,7 +79,7 @@ function UILib.CreateTargetUI()
         Btn.Text = text
         Btn.Font = Enum.Font.GothamBold
         Btn.TextSize = 12 
-        Btn.TextColor3 = isActive and Color3.fromRGB(255, 50, 50) or Color3.fromRGB(30, 30, 30)
+        Btn.TextColor3 = isActive and Color3.fromRGB(255, 50, 50) or Color3.fromRGB(200, 200, 200)
         Btn.Parent = Container
         Instance.new("UICorner", Btn).CornerRadius = UDim.new(1, 0)
         Buttons[name] = Btn
@@ -92,7 +97,7 @@ function UILib.CreateTargetUI()
                 btnObj.TextColor3 = Color3.fromRGB(255, 50, 50)
             else
                 btnObj.BackgroundTransparency = 1
-                btnObj.TextColor3 = Color3.fromRGB(30, 30, 30)
+                btnObj.TextColor3 = Color3.fromRGB(200, 200, 200)
             end
         end
     end
@@ -118,7 +123,7 @@ function UILib.CreateTargetUI()
 end
 
 -- ==========================================
--- 2. WATERMARK UI (FPS & PING)
+-- 2. WATERMARK UI (GAYA ASLI DENGAN GRADIENT)
 -- ==========================================
 function UILib.CreateWatermark()
     local parent = getParent()
@@ -140,19 +145,39 @@ function UILib.CreateWatermark()
     WmB.Active = true
     WmB.Parent = WatermarkUI
 
-    Instance.new("UICorner", WmB).CornerRadius = UDim.new(0, 8)
+    local UICorner = Instance.new("UICorner", WmB)
+    UICorner.CornerRadius = UDim.new(0, 8)
+
     local UIStroke = Instance.new("UIStroke", WmB)
     UIStroke.Color = Color3.fromRGB(255, 255, 255)
+    UIStroke.Thickness = 1
+    UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     UIStroke.Transparency = 0.25
 
-    local WatermarkText = Instance.new("TextLabel")
+    local UIGradient = Instance.new("UIGradient", WmB)
+    UIGradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(200, 200, 200)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(50, 50, 50))
+    })
+    UIGradient.Rotation = 90
+
+    local WatermarkText = Instance.new("TextLabel", WmB)
     WatermarkText.Size = UDim2.new(1, 0, 1, 0)
     WatermarkText.BackgroundTransparency = 1
     WatermarkText.Font = Enum.Font.GothamSemibold
     WatermarkText.TextSize = 11
     WatermarkText.TextColor3 = Color3.fromRGB(255, 255, 255)
     WatermarkText.Text = "VD_T | FPS: ... | Ping: ..."
-    WatermarkText.Parent = WmB
+
+    local StrokeGradient = Instance.new("UIGradient", UIStroke)
+    StrokeGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(255,255,255)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(180,180,180)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(255,255,255))
+    }
+    StrokeGradient.Transparency = NumberSequence.new{
+        NumberSequenceKeypoint.new(0, 0.9), NumberSequenceKeypoint.new(0.15, 0.2), NumberSequenceKeypoint.new(0.5, 0), NumberSequenceKeypoint.new(0.85, 0.2), NumberSequenceKeypoint.new(1, 0.9)
+    }
 
     local dragging, dragInput, dragStart, startPos
     WmB.InputBegan:Connect(function(input)
@@ -175,7 +200,7 @@ function UILib.CreateWatermark()
 end
 
 -- ==========================================
--- 3. SPECTATOR & PREDICT UI
+-- 3. SPECTATOR & PREDICT UI (GAYA ASLI FADING)
 -- ==========================================
 function UILib.CreateSpectator()
     local parent = getParent()
@@ -185,51 +210,76 @@ function UILib.CreateSpectator()
     screenGui.Name = "SpcGui"
     screenGui.Parent = parent
     screenGui.ResetOnSpawn = false
+    screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
     local mainFrame = Instance.new("Frame")
-    mainFrame.Size = UDim2.new(0, 50, 0, 18)
-    mainFrame.Position = UDim2.new(0.5, 0, 0, -10)
+    mainFrame.Name = "MainBox"
     mainFrame.AnchorPoint = Vector2.new(0.5, 1)
+    mainFrame.Position = UDim2.new(0.5, 0, 0, -10)
+    mainFrame.Size = UDim2.new(0, 50, 0, 18) 
     mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    mainFrame.BackgroundTransparency = 0
+    mainFrame.BorderSizePixel = 0
     mainFrame.Parent = screenGui
+
+    local uiGradient = Instance.new("UIGradient", mainFrame)
+    uiGradient.Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.2, 0.3), NumberSequenceKeypoint.new(0.8, 0.3), NumberSequenceKeypoint.new(1, 1)
+    })
+
     Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 6)
 
     local layout = Instance.new("UIListLayout", mainFrame)
     layout.FillDirection = Enum.FillDirection.Horizontal
     layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
     layout.VerticalAlignment = Enum.VerticalAlignment.Center
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
     layout.Padding = UDim.new(0, 6)
 
     local eyeIcon = Instance.new("ImageLabel", mainFrame)
+    eyeIcon.Name = "Icon"
+    eyeIcon.LayoutOrder = 1
     eyeIcon.Size = UDim2.new(0, 14, 0, 14)
     eyeIcon.BackgroundTransparency = 1
-    eyeIcon.Image = "rbxassetid://13321848320"
+    eyeIcon.Image = "rbxassetid://13321848320" 
+    eyeIcon.ImageColor3 = Color3.fromRGB(200, 200, 200)
 
     local countText = Instance.new("TextLabel", mainFrame)
+    countText.Name = "Count"
+    countText.LayoutOrder = 2
     countText.Size = UDim2.new(0, 0, 1, 0)
     countText.AutomaticSize = Enum.AutomaticSize.X 
     countText.BackgroundTransparency = 1
     countText.Font = Enum.Font.GothamMedium
+    countText.Text = "0"
     countText.TextColor3 = Color3.fromRGB(230, 230, 230)
     countText.TextSize = 12
-    countText.Text = "0"
 
     local nextKillerFrame = Instance.new("Frame", screenGui)
-    nextKillerFrame.Size = UDim2.new(0, 150, 0, 18) 
-    nextKillerFrame.Position = UDim2.new(0.5, 0, mainFrame.Position.Y.Scale, mainFrame.Position.Y.Offset + 20)
+    nextKillerFrame.Name = "NextKillerBox"
     nextKillerFrame.AnchorPoint = Vector2.new(0.5, 0)
+    nextKillerFrame.Position = UDim2.new(0.5, 0, mainFrame.Position.Y.Scale, mainFrame.Position.Y.Offset + 20)
+    nextKillerFrame.Size = UDim2.new(0, 150, 0, 18) 
     nextKillerFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
     nextKillerFrame.BackgroundTransparency = 0.2
+    nextKillerFrame.BorderSizePixel = 0
     nextKillerFrame.Visible = false
+
+    local nkGradient = Instance.new("UIGradient", nextKillerFrame)
+    nkGradient.Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.2, 0.3), NumberSequenceKeypoint.new(0.8, 0.3), NumberSequenceKeypoint.new(1, 1)
+    })
+
     Instance.new("UICorner", nextKillerFrame).CornerRadius = UDim.new(0, 6)
 
     local nkText = Instance.new("TextLabel", nextKillerFrame)
+    nkText.Name = "KillerText"
     nkText.Size = UDim2.new(1, 0, 1, 0)
     nkText.BackgroundTransparency = 1
     nkText.Font = Enum.Font.GothamMedium
+    nkText.Text = "Next Killer: ..."
     nkText.TextColor3 = Color3.fromRGB(255, 85, 85)
     nkText.TextSize = 12
-    nkText.Text = "Next Killer: ..."
 
     return { UI = screenGui, CountText = countText, KillerFrame = nextKillerFrame, KillerText = nkText }
 end
